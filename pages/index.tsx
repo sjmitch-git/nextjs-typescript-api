@@ -2,8 +2,26 @@ import Head from "next/head";
 import Image from "next/image";
 import React from "react";
 
-const Home: React.FC = () => {
-  const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9]; // Replace this with your actual data
+import type { NextApiRequest, NextApiResponse } from "next";
+
+const dev = process.env.NODE_ENV !== "production";
+
+export const server = dev
+  ? "http://localhost:3000"
+  : process.env.NEXT_PUBLIC_HOST_URL;
+
+interface ServerSideProps {
+  req: NextApiRequest;
+  res: NextApiResponse;
+}
+
+interface DataProps {
+  data: any[];
+}
+
+const Home = (data: DataProps) => {
+  console.log("DATA", data, data.data);
+  const cards = data.data;
   return (
     <>
       <Head>
@@ -25,20 +43,20 @@ const Home: React.FC = () => {
           {/* End hero unit */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {cards.map((card) => (
-              <div key={card} className="flex flex-col">
+              <div key={card.id} className="flex flex-col">
                 <Image
-                  src={`https://picsum.photos/200/200`}
-                  alt="placeholder"
+                  src={card.image}
+                  alt={card.name}
                   width={200}
                   height={200}
                   className="object-cover object-center"
                 />
                 <div className="flex-1 p-4">
-                  <h2 className="text-xl font-semibold mb-2">Currency Name</h2>
+                  <h2 className="text-xl font-semibold mb-2">{card.name}</h2>
                   <ul className="list-disc pl-5">
-                    <li>Current Price: xxx</li>
-                    <li>24h High: xxx</li>
-                    <li>24h Low: xxx</li>
+                    <li>Current Price: {card.current_price}</li>
+                    <li>24h High: {card.high_24h}</li>
+                    <li>24h Low: {card.low_24h}</li>
                   </ul>
                 </div>
                 <div className="p-4">
@@ -56,3 +74,10 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+export async function getServerSideProps({ req, res }: ServerSideProps) {
+  const response = await fetch(`${server}/api/markets`);
+  const data = await response.json();
+
+  return { props: { data } };
+}
