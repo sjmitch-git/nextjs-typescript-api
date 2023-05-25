@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -20,7 +21,6 @@ interface DataProps {
 }
 
 const Home = (data: DataProps) => {
-  console.log("DATA", data, data.data);
   const cards = data.data;
   return (
     <>
@@ -60,9 +60,12 @@ const Home = (data: DataProps) => {
                   </ul>
                 </div>
                 <div className="p-4">
-                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  <Link
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    href={`/currency/${card.id}?name=${card.name}&price=${card.current_price}&ath=${card.ath}&rank=${card.market_cap_rank}&mcap=${card.market_cap}`}
+                  >
                     More
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
